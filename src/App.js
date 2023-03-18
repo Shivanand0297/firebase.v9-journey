@@ -4,10 +4,12 @@ import Register from "./components/Register";
 // db from firestore
 import { db } from "./config/firebaseConfig";
 
-import { getDocs, addDoc, collection, deleteDoc, doc } from "firebase/firestore";
+import { getDocs, addDoc, collection, deleteDoc, doc, updateDoc } from "firebase/firestore";
 
 // toast imports
 import toast, { Toaster } from 'react-hot-toast';
+
+import "./App.css"
 
 const App = () => {
   const [movieList, setMovieList] = useState([]);
@@ -21,6 +23,9 @@ const App = () => {
     releaseDate: "",
     isReceivedAnOscar: false
   })
+
+  // state to update the new title 
+  const [newTitle, setNewTitle] = useState("")
 
   // fetching all the movies from firestore db
   const getMovies = async () => {
@@ -105,6 +110,19 @@ const App = () => {
     getMovies()
   }
 
+  const updateMovieTitle = async (id) =>{
+    const movieDoc = doc(db, "movies", id)
+    await updateDoc(movieDoc, {
+      title: newTitle
+    })
+
+    toast.success("Updated Successfully", {
+      position: "top-center"
+    })
+
+    getMovies()
+  }
+
   return (
     <div>
       <Register />
@@ -138,6 +156,10 @@ const App = () => {
           <h3>Release Date: {movie.releaseDate}</h3>
           <h2>Received an oscar? {movie.receivedAnOscar ? "Yes" : "No"}</h2>
           <button onClick={()=>{deleteMovie(movie.id)}} >Delete Movie</button>
+          <input 
+            onChange={(e)=> setNewTitle(e.target.value)}
+          />
+          <button onClick={()=> updateMovieTitle(movie.id)}>Update Title</button>
         </div>
       ))}
       <Toaster/>
