@@ -1,7 +1,10 @@
-// importing auth from firebase config
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
-import { auth } from "../config/firebaseConfig";
+
+// importing auth from firebase config
+import { createUserWithEmailAndPassword, signOut, signInWithPopup } from "firebase/auth";
+
+// firebase config
+import { auth, provider } from "../config/firebaseConfig";
 
 const Register = () => {
   const [inputs, setInputs] = useState({
@@ -19,7 +22,7 @@ const Register = () => {
     }));
   };
 
-  // console.log(auth?.currentUser?.email) //to get the logged in user
+  console.log(auth?.currentUser?.email) //to get the logged in user
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -31,6 +34,23 @@ const Register = () => {
       console.log(err);
     }
   };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      return <p>Signed Out Successfully!</p>
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const signInWithGoogle = async () =>{
+    try {
+      await signInWithPopup(auth, provider)
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   return (
     <div>
@@ -53,6 +73,8 @@ const Register = () => {
         />
         <button type="submit">Register</button>
       </form>
+        <button onClick={handleSignOut}>Sign Out</button>
+        <button onClick={signInWithGoogle}>Sign in with google</button>
     </div>
   );
 };
