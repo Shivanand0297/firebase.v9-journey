@@ -22,7 +22,8 @@ const Register = () => {
     }));
   };
 
-  console.log(auth?.currentUser?.email) //to get the logged in user
+  // console.log(auth?.currentUser?.email) //to get the logged in user
+  // console.log(auth?.currentUser) //to get the information about logged in user
 
   const handleRegister = async (e) => {
     e.preventDefault();
