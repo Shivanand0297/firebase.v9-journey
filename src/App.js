@@ -4,7 +4,7 @@ import Register from "./components/Register";
 // db from firestore
 import { db } from "./config/firebaseConfig";
 
-import { getDocs, addDoc, collection } from "firebase/firestore";
+import { getDocs, addDoc, collection, deleteDoc, doc } from "firebase/firestore";
 
 // toast imports
 import toast, { Toaster } from 'react-hot-toast';
@@ -87,11 +87,22 @@ const App = () => {
       })
 
       getMovies();
-      
+
     } catch (err) {
       console.log(err)
       toast.error("Could not add movie")
     }
+  }
+
+  // function to delete movie
+  const deleteMovie = async (id) =>{
+    const movieDoc = doc(db, "movies", id)  // Gets a DocumentReference instance that refers to the document at the specified absolute path.
+    await deleteDoc(movieDoc)
+
+    toast.success("Deleted Successfully", {
+      position: "top-center"
+    })
+    getMovies()
   }
 
   return (
@@ -126,7 +137,7 @@ const App = () => {
           <h2 style={{ color: movie.receivedAnOscar ? "green" : "red" }} >Title: {movie.title}</h2>
           <h3>Release Date: {movie.releaseDate}</h3>
           <h2>Received an oscar? {movie.receivedAnOscar ? "Yes" : "No"}</h2>
-          
+          <button onClick={()=>{deleteMovie(movie.id)}} >Delete Movie</button>
         </div>
       ))}
       <Toaster/>
