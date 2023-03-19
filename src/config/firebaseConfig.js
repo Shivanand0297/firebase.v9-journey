@@ -7,6 +7,9 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth"
 // creating database
 import { getFirestore } from "firebase/firestore"
 
+// importing firebase storage
+import { getStorage } from "firebase/storage"
+
 const firebaseConfig = {
   apiKey: "AIzaSyCE64HBxD7AqJgysoSVHYoNjFqU0X6jnPk",
   authDomain: "fir-basics-cf0cc.firebaseapp.com",
@@ -26,3 +29,6 @@ export const provider = new GoogleAuthProvider();
 
 // exporting firestore
 export const db = getFirestore(app)
+
+// export firebase storageBucket
+export const storage = getStorage(app)

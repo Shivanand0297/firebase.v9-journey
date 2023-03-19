@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Register from "./components/Register";
 
 // db from firestore
-import { db, auth } from "./config/firebaseConfig";
+import { db, auth, storage } from "./config/firebaseConfig";
 
 import { getDocs, addDoc, collection, deleteDoc, doc, updateDoc } from "firebase/firestore";
 
@@ -10,6 +10,13 @@ import { getDocs, addDoc, collection, deleteDoc, doc, updateDoc } from "firebase
 import toast, { Toaster } from 'react-hot-toast';
 
 import "./App.css"
+
+
+// getting bucket ref and function to Upload files
+import { ref, uploadBytes, listAll, getDownloadURL } from "firebase/storage";
+
+// importing uuid to give random name to the files
+import { v4 } from "uuid";
 
 const App = () => {
   const [movieList, setMovieList] = useState([]);
@@ -26,6 +33,12 @@ const App = () => {
 
   // state to update the new title 
   const [newTitle, setNewTitle] = useState("")
+
+  // state for handling files
+  const [fileUpload, setFileUpload] = useState(null)
+
+  // state to store all the images url list
+  const [imageList, setImageList] = useState([])
 
   // fetching all the movies from firestore db
   const getMovies = async () => {
@@ -48,9 +61,6 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-    getMovies();
-  }, []);
 
 // change function
   const handleChange = (item, e) =>{
@@ -129,6 +139,39 @@ const App = () => {
     getMovies()
   }
 
+  // getting imageList folder ref
+  const imageListFolder = ref(storage, `projectfiles/`)
+
+
+  // handleUploadFile
+  const handleUploadFile = async () =>{
+    if(!fileUpload) return;
+
+    // to get the reference of the folder to Upload into
+    const fileUploadFolder = ref(storage, `projectfiles/${fileUpload.name.concat(v4())}`)
+    try {
+      await uploadBytes(fileUploadFolder, fileUpload)
+      toast.success("File Uploaded")
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const listAllImages = async () =>{
+    // getting all the imageList
+    const data = await listAll(imageListFolder)
+    data.items.forEach(async (item)=>{
+      const url = await getDownloadURL(item)
+      setImageList((prev)=>([...prev, url]))
+    })
+  }
+
+  useEffect(() => {
+    getMovies();
+
+    listAllImages()
+  
+  }, []);
   return (
     <div>
       <Register />
@@ -171,6 +214,21 @@ const App = () => {
           <button onClick={()=> updateMovieTitle(movie.id)}>Update Title</button>
         </div>
       ))}
+      <div>
+        <input type="file" 
+          onChange={(e)=> setFileUpload(e.target.files[0])}
+        />
+        <button
+          onClick={handleUploadFile}
+        >
+          Upload File
+        </button>
+      </div>
+      <div>
+        {imageList.map((url, i) =>(
+          <img src={url} key={i} />
+        ))}
+      </div>
       <Toaster/>
     </div>
   );
