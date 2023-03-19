@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Register from "./components/Register";
 
 // db from firestore
-import { db } from "./config/firebaseConfig";
+import { db, auth } from "./config/firebaseConfig";
 
 import { getDocs, addDoc, collection, deleteDoc, doc, updateDoc } from "firebase/firestore";
 
@@ -75,7 +75,8 @@ const App = () => {
       await addDoc(moviesCollection, {
         title: movieDetails.title,
         releaseDate: movieDetails.releaseDate,
-        receivedAnOscar: movieDetails.isReceivedAnOscar
+        receivedAnOscar: movieDetails.isReceivedAnOscar,
+        userId: auth?.currentUser?.uid  //adding the id of the user in the collection
       })
 
       // success toast
@@ -101,13 +102,18 @@ const App = () => {
 
   // function to delete movie
   const deleteMovie = async (id) =>{
-    const movieDoc = doc(db, "movies", id)  // Gets a DocumentReference instance that refers to the document at the specified absolute path.
-    await deleteDoc(movieDoc)
-
-    toast.success("Deleted Successfully", {
-      position: "top-center"
-    })
-    getMovies()
+    try {
+      const movieDoc = doc(db, "movies", id)  // Gets a DocumentReference instance that refers to the document at the specified absolute path.
+      await deleteDoc(movieDoc)
+  
+      toast.success("Deleted Successfully", {
+        position: "top-center"
+      })
+      getMovies()
+      
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   const updateMovieTitle = async (id) =>{
@@ -133,6 +139,8 @@ const App = () => {
           name="title"
           placeholder="Movie title"
           value={movieDetails.title}
+          min={3}
+          required={true}
         />
         <input 
           onChange={(e)=> {handleChange("number", e)}}
@@ -140,6 +148,7 @@ const App = () => {
           name="releaseDate"
           placeholder="ReleaseDate"
           value={movieDetails.releaseDate ? Number(movieDetails.releaseDate) : "" }
+          required={true}
         />
         <input 
           onChange={(e)=>{handleChange("checkbox", e)}}

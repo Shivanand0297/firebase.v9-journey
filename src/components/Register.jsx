@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword, signOut, signInWithPopup } from "fireba
 
 // firebase config
 import { auth, provider } from "../config/firebaseConfig";
+import { toast } from "react-hot-toast";
 
 const Register = () => {
   const [inputs, setInputs] = useState({
@@ -39,15 +40,17 @@ const Register = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      return <p>Signed Out Successfully!</p>
+      toast.success("Signout Successfully")
     } catch (err) {
       console.log(err);
+      toast.error(err.message)
     }
   };
 
   const signInWithGoogle = async () =>{
     try {
       await signInWithPopup(auth, provider)
+      toast.success("Signedin Successfully")
     } catch (err) {
       console.log(err)
     }
@@ -63,6 +66,7 @@ const Register = () => {
           placeholder="Enter email"
           onChange={handleInputs}
           value={email}
+          min={3}
         />
         <input
           type="password"
@@ -71,6 +75,7 @@ const Register = () => {
           placeholder="Enter Password"
           onChange={handleInputs}
           value={password}
+          min={3}
         />
         <button type="submit">Register</button>
       </form>
